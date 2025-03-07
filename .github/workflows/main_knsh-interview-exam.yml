@@ -1,0 +1,51 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy container app to Azure Web App - knsh-interview-exam
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to registry
+      uses: docker/login-action@v2
+      with:
+        registry: https://knshinterviewexam.azurecr.io/
+        username: ${{ secrets.AzureAppService_ContainerUsername_4016ea177ab1443fa248421d8dd00ced }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_05f9cde5331f444e92035d3966a66e9a }}
+
+    - name: Build and push container image to registry
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        tags: knshinterviewexam.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_4016ea177ab1443fa248421d8dd00ced }}/knshInterviewExam:${{ github.sha }}
+        file: ./Dockerfile
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'knsh-interview-exam'
+        slot-name: 'production'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_38600f7c1417430b9ead319c791bc136 }}
+        images: 'knshinterviewexam.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_4016ea177ab1443fa248421d8dd00ced }}/knshInterviewExam:${{ github.sha }}'
