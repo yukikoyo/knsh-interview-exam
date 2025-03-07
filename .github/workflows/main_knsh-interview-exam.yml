@@ -30,7 +30,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: knshinterviewexam.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_37347df9fdc043d28287e184a93add93 }}/knshinterviewexam:${{ github.sha }}
+        tags: knshinterviewexam.azurecr.io/${{ secrets.REGISTRY_USERNAME }}/knshinterviewexam:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -48,4 +48,4 @@ jobs:
         app-name: 'knsh-interview-exam'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_c34fc7902590435a8d403a513f7b6138 }}
-        images: 'knshinterviewexam.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_37347df9fdc043d28287e184a93add93 }}/knshinterviewexam:${{ github.sha }}'
+        images: 'knshinterviewexam.azurecr.io/${{ secrets.REGISTRY_USERNAME }}/knshinterviewexam:${{ github.sha }}'
