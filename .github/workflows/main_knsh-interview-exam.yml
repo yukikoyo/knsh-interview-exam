@@ -23,14 +23,14 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: https://knshinterviewexam.azurecr.io/
-        username: ${{ secrets.AzureAppService_ContainerUsername_4016ea177ab1443fa248421d8dd00ced }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_05f9cde5331f444e92035d3966a66e9a }}
+        username: ${{ secrets.AzureAppService_ContainerUsername_37347df9fdc043d28287e184a93add93 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_b3114618e6f74da09973c7fe0b536078 }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: knshinterviewexam.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_4016ea177ab1443fa248421d8dd00ced }}/knshInterviewExam:${{ github.sha }}
+        tags: knshinterviewexam.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_37347df9fdc043d28287e184a93add93 }}/knshinterviewexam:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -47,5 +47,5 @@ jobs:
       with:
         app-name: 'knsh-interview-exam'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_38600f7c1417430b9ead319c791bc136 }}
-        images: 'knshinterviewexam.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_4016ea177ab1443fa248421d8dd00ced }}/knshInterviewExam:${{ github.sha }}'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_c34fc7902590435a8d403a513f7b6138 }}
+        images: 'knshinterviewexam.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_37347df9fdc043d28287e184a93add93 }}/knshinterviewexam:${{ github.sha }}'
