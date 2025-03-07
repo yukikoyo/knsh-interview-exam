@@ -23,8 +23,8 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: https://knshinterviewexam.azurecr.io/
-        username: ${{ secrets.AzureAppService_ContainerUsername_37347df9fdc043d28287e184a93add93 }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_b3114618e6f74da09973c7fe0b536078 }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
