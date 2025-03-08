@@ -62,7 +62,6 @@ def pronunciationEval():
     print (f"Saved file to {inputFileName}")
     result = pron.get_pronunciation(inputFileName, word)
     result_dict = json.loads(result)
-    #result = "Got Result of Pron!"
     response = jsonify(result_dict)
     response.headers["Content-Type"] = "application/json; charset=utf-8"
     return response
