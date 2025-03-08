@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>實作1: 發音評定</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/recorderjs/0.1.0/recorder.js"></script>
+  <script>
+    let audioContext, recorder;
+  
+    async function startRecording() {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const input = audioContext.createMediaStreamSource(stream);
+
+        recorder = new Recorder(input, { numChannels: 1 , sampleRate: 16000 });
+        recorder.record();
+
+        window.stream = stream;
+
+        document.getElementById('recordBtn').disabled = true;
+        document.getElementById('recordBtn').style.display = 'none';
+        document.getElementById('stopBtn').disabled = false;
+        document.getElementById('stopBtn').style.display = 'block';
+    }
+  
+    function stopRecording() {
+        recorder.stop();
+
+        // 取得 WAV 檔
+        recorder.exportWAV(async (blob) => {
+        audioBlob = blob;  
+
+        await sendData();
+        });
+        document.getElementById('result').innerText = '處理中...請稍候...'
+        document.getElementById('stopBtn').disabled = true;
+        document.getElementById('stopBtn').style.display = 'none';
+
+        if (window.stream) {
+            window.stream.getTracks().forEach(track => track.stop());
+        }
+    }
+
+    async function sendData() {
+        const selectedText = document.getElementById('sentenceSelect').value;
+        const formData = new FormData();
+        formData.append('sentence', selectedText);
+
+        if (audioBlob) {
+            formData.append('audio', audioBlob, 'audio.wav');
+        }
+
+        const response = await fetch('/module/examA/process', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const data = await response.json();
+        if (data.RecognitionStatus){
+            document.getElementById('result').innerText = 'API回傳結果：' + data.RecognitionStatus + '\n';
+        }
+        if (data.RecognitionStatus === 'Success') {
+            let score = data.NBest[0].PronunciationAssessment.PronScore;
+            if (score >= 80) {
+                document.getElementById('result').innerText += '\n' + '念得很標準喔！';
+            } else {
+                document.getElementById('result').innerText += '\n' + '念得有點不標準，再加油！';
+            }
+            document.getElementById('result').innerText += '\n' + '綜合分數：' + data.NBest[0].PronunciationAssessment.PronScore + '分';
+            document.getElementById('result').innerText += '\n' + '精確度：' + data.NBest[0].PronunciationAssessment.AccuracyScore + '分';
+            document.getElementById('result').innerText += '\n' + '流暢度：' + data.NBest[0].PronunciationAssessment.FluencyScore + '分';
+            document.getElementById('result').innerText += '\n' + '完整性：' + data.NBest[0].PronunciationAssessment.CompletenessScore + '分' + '\n';
+
+            for (let i = 0; i < data.NBest[0].Words.length; i++) {
+                let word = data.NBest[0].Words[i];
+                if (word.PronunciationAssessment.ErrorType !== 'None') {
+                    document.getElementById('result').innerText += '\n' + '「' + word.Word + '」的發音有點問題';
+                }
+            }
+        }
+        document.getElementById('recordBtn').disabled = false;
+        document.getElementById('recordBtn').style.display = 'block';
+    }
+  
+  </script>
+</head>
+<body class="flex items-center justify-center h-screen bg-gray-100">
+  <div class="text-center w-full p-6 bg-white rounded-lg shadow-lg" style="width: 60%; height: 60%; max-width: 500px; max-height: 600px;">
+    <h1 class="text-2xl mb-4">選擇句子或單詞並錄音</h1>
+
+    <!-- 下拉選單 -->
+    <select id="sentenceSelect" class="w-full p-2 mb-4 border border-gray-300 rounded">
+        <option value="今天天氣爆熱，走出去都快融化了。">今天天氣爆熱，走出去都快融化了。</option>
+        <option value="你中午要不要一起去吃便當？">你中午要不要一起去吃便當？</option>
+        <option value="剛剛巷口那間飲料店在特價，買一送一耶！">剛剛巷口那間飲料店在特價，買一送一耶！</option>
+        <option value="這個週末要不要去夜市逛逛？">這個週末要不要去夜市逛逛？</option>
+        <option value="我等等要去便利商店補貨，要幫你帶東西嗎？">我等等要去便利商店補貨，要幫你帶東西嗎？</option>
+        <option value="昨天加班加到超晚，今天整個累爆。">昨天加班加到超晚，今天整個累爆。</option>
+        <option value="這支手機拍照效果不錯，夜拍很清楚。">這支手機拍照效果不錯，夜拍很清楚。</option>
+        <option value="這幾天一直在下雨，衣服都快曬不乾了。">這幾天一直在下雨，衣服都快曬不乾了。</option>
+        <option value="你有沒有推薦什麼好看的台劇？">你有沒有推薦什麼好看的台劇？</option>
+        <option value="今天的公車怎麼這麼久才來，等到快睡著了。">今天的公車怎麼這麼久才來，等到快睡著了。</option>
+    </select>
+
+    <!-- 錄音按鈕 -->
+    <div class="mb-4 flex justify-center">
+      <button id="recordBtn" onclick="startRecording()" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+        開始錄音
+      </button>
+      <button id="stopBtn" onclick="stopRecording()" class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600" style="display: none;" disabled>
+        停止錄音
+      </button>
+    </div>
+
+    <!-- 顯示結果 -->
+    <div id="result" class="mt-4 text-xl"></div>
+  </div>
+</body>
+</html>
