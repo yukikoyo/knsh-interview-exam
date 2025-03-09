@@ -1,5 +1,7 @@
 Flask
 gunicorn
 azure-cognitiveservices-speech
+azure-ai-vision-imageanalysis
 werkzeug
 pydub
+opencv-python

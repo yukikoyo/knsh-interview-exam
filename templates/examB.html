@@ -5,30 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>實作2: 影像辨識</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/recorderjs/0.1.0/recorder.js"></script>
   <script>
     async function sendData() {
-      const selectedText = document.getElementById('sentenceSelect').value;
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
       const formData = new FormData();
-      formData.append('sentence', selectedText);
-  
-      if (audioBlob) {
-        formData.append('audio', audioBlob, 'audio.wav');
-      }
-  
-      const response = await fetch('/module/examA/process', {
-        method: 'POST',
-        body: formData,
-      });
-  
-      const data = await response.json();
-      if (data.RecognitionStatus){
-        document.getElementById('result').innerText = 'API回傳結果：' + data.RecognitionStatus + '\n';
-      }
-      let score = data.NBest[0].PronunciationAssessment.PronScore;
+      formData.append('file', file);
 
+      // 發送 POST 請求
+      const response = await fetch('/module/examB/process', {
+          method: 'POST',
+          body: formData,
+      });
+
+      // 取得回應
+      const data = await response.json();
+      if (data.error) {
+        alert(data.error);
+        return;
+      }
+      document.getElementById('result').innerText = "";
+      document.getElementById('resultImg').src = data.imgUrl;
+
+      Object.entries(data.results).forEach(([key, result]) => {
+        document.getElementById('result').innerText += key + '==>' + result.text + '(' + result.score + '分)\n';
+      });
     }
-  
   </script>
 </head>
 <body class="flex items-center justify-center h-screen bg-gray-100">
@@ -44,7 +46,10 @@
       </button>
   
       <!-- 顯示結果 -->
-      <div id="result" class="mt-4 text-xl"></div>
+      <div class="mt-4 flex justify-center items-center">
+        <img id="resultImg" src="" class="max-w-full max-h-full">
+      </div>
+      <div id="result" class="mt-4 text-xl text-left"></div>
     </div>
   </body>
 </html>
