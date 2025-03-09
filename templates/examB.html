@@ -32,33 +32,19 @@
   </script>
 </head>
 <body class="flex items-center justify-center h-screen bg-gray-100">
-  <div class="text-center w-full p-6 bg-white rounded-lg shadow-lg" style="width: 60%; height: 60%; max-width: 500px; max-height: 600px;">
-    <h1 class="text-2xl mb-4">選擇句子或單詞並錄音</h1>
-
-    <!-- 下拉選單 -->
-    <select id="sentenceSelect" class="w-full p-2 mb-4 border border-gray-300 rounded">
-      <option value="你好，世界！">你好，世界！</option>
-      <option value="今天是個好天氣。">今天是個好天氣。</option>
-      <option value="我正在學習編程。">我正在學習編程。</option>
-    </select>
-
-    <!-- 錄音按鈕 -->
-    <div class="mb-4 flex justify-center">
-      <button id="recordBtn" onclick="startRecording()" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-        開始錄音
+    <div class="text-center w-full p-6 bg-white rounded-lg shadow-lg" style="width: 60%; height: 60%; max-width: 500px; max-height: 600px;">
+      <h1 class="text-2xl mb-4">選擇檔案並上傳</h1>
+  
+      <!-- 上傳檔案 -->
+      <input type="file" id="fileInput" class="w-full p-2 mb-4 border border-gray-300 rounded">
+  
+      <!-- 送出按鈕 -->
+      <button onclick="sendData()" class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+        送出
       </button>
-      <button id="stopBtn" onclick="stopRecording()" class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 ml-4" disabled>
-        停止錄音
-      </button>
+  
+      <!-- 顯示結果 -->
+      <div id="result" class="mt-4 text-xl"></div>
     </div>
-
-    <!-- 送出按鈕 -->
-    <button onclick="sendData()" class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-      送出
-    </button>
-
-    <!-- 顯示結果 -->
-    <div id="result" class="mt-4 text-xl"></div>
-  </div>
-</body>
+  </body>
 </html>
